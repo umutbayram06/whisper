@@ -105,7 +105,8 @@ const updateStatus = async(req,res) =>{
         const response = await User.findByIdAndUpdate(
             _id,
             { status: status },
-            { new: true }
+            { runValidators: true,
+                new: true }
           );
         res.status(200).json(response)
 
@@ -115,12 +116,73 @@ const updateStatus = async(req,res) =>{
     }
 }
 
+//Block
+//Returns blocked users id, status, profile image in blockedUsers[]
+const getBlockedUsers = async (req,res) => {
+
+    const {_id} = req.user;
+
+    try{
+        const response = await User.findOne(_id).select('blockedUsers').populate('blockedUsers', 'username email profileImage');
+        res.status(200).json(response)
+    }catch(error){
+        console.log(error)
+        res.status(400).json(error)
+    }
+
+    
+}
+const blockUser = async (req,res) => {
+
+    //User id to be blocked taken from the parameters
+    const {id} = req.params;
+    const {_id} = req.user;
+    try{
+
+        const response = await User.findByIdAndUpdate(
+            _id,
+            { $addToSet: { blockedUsers: id } },
+            { new: true }
+        );
+
+        res.status(200).json(response)
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while blocking the user" });
+    }
+}
+//Unblocks a user
+const unblockUser = async (req,res) => {
+    //User id to be blocked taken from the parameters
+    const {id} = req.params;
+    const {_id} = req.user;
+    try{
+
+        const response = await User.findByIdAndUpdate(
+            _id,
+            { $pull: { blockedUsers: id } },
+            { new: true }
+        );
+
+        res.status(200).json(response)
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while blocking the user" });
+    }
+    
+}
+
 //Routes
 router.get("/profileImage",authenticateWithJWT,getProfileImage) 
 router.patch("/profileImage",authenticateWithJWT,updateProfileImage) 
 router.get("/about",authenticateWithJWT,getAbout) 
 router.patch("/about",authenticateWithJWT,updateAbout) 
 router.get("/status",authenticateWithJWT,getStatus) 
-router.patch("/status",authenticateWithJWT,updateStatus) 
+router.patch("/status",authenticateWithJWT,updateStatus)
+router.get("/block",authenticateWithJWT,getBlockedUsers)
+router.patch("/block/:id",authenticateWithJWT,blockUser)  
+router.patch("/unblock/:id",authenticateWithJWT,unblockUser)  
 
 export default router;
