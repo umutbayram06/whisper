@@ -96,6 +96,20 @@ const getStatus = async(req,res) =>{
         res.status(400).json(error)
     }
 }
+//Get status of users without authentication
+const getUserStatus = async(req,res) =>{
+    const { id } = req.params;
+    try{
+
+        const response = await User.findById(id).select("status");
+        res.status(200).json(response)
+
+    }catch(error){
+        console.log(error)
+        res.status(400).json(error)
+    }
+
+}
 //Takes json status:{status}
 const updateStatus = async(req,res) =>{
     const {status} = req.body
@@ -177,10 +191,14 @@ const unblockUser = async (req,res) => {
 //Routes
 router.get("/profileImage",authenticateWithJWT,getProfileImage) 
 router.patch("/profileImage",authenticateWithJWT,updateProfileImage) 
+
 router.get("/about",authenticateWithJWT,getAbout) 
 router.patch("/about",authenticateWithJWT,updateAbout) 
+
 router.get("/status",authenticateWithJWT,getStatus) 
+router.get("/status/:id",getUserStatus) 
 router.patch("/status",authenticateWithJWT,updateStatus)
+
 router.get("/block",authenticateWithJWT,getBlockedUsers)
 router.patch("/block/:id",authenticateWithJWT,blockUser)  
 router.patch("/unblock/:id",authenticateWithJWT,unblockUser)  
