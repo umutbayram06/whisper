@@ -68,12 +68,6 @@ const userSchema = new mongoose.Schema({
   privacySettings: {
     type: privacySettingsSchema,
   },
-  rooms: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: "Room",
-    },
-  ],
 });
 
 // Save user's password after validation
