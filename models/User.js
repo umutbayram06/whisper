@@ -67,6 +67,7 @@ const userSchema = new mongoose.Schema({
   ],
   privacySettings: {
     type: privacySettingsSchema,
+    default: () => ({ showProfileImage: true, showAboutSection: true }),
   },
   rooms: [
     {
