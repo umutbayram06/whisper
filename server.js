@@ -9,6 +9,7 @@ import http from "http";
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -34,6 +35,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
 
 app.use(errorHandler);
 
