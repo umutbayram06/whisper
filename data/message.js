@@ -9,6 +9,10 @@ export async function addTextMessageToRoom(message, roomID) {
   });
 
   await newMessage.save();
+  await newMessage.populate({
+    path: "sender",
+    select: "_id username",
+  });
 
   await Room.findOneAndUpdate(
     { _id: roomID }, // Find room by ID

@@ -18,6 +18,11 @@ export async function createRoom(
   });
 
   await newRoom.save();
+
+  await newRoom.populate({
+    path: "participants",
+    select: "_id username",
+  });
   return newRoom;
 }
 
@@ -43,7 +48,10 @@ export async function getMessagesByRoomID(roomID) {
 }
 
 export async function getRoomsOfUser(userID) {
-  const rooms = await Room.find({ participants: userID });
+  const rooms = await Room.find({ participants: userID }).populate({
+    path: "participants",
+    select: "_id username",
+  });
 
   return rooms;
 }

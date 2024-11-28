@@ -50,26 +50,21 @@ app.use("/fileUpload", fileUploadRoutes);
 app.use(errorHandler);
 
 // Socket.IO connection setup
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   const { _id, username } = socket.user;
   console.log("A user connected " + socket.user.username);
 
-  socket.on("initialize", async () => {
-    // Retrieve the rooms the user is part of
-    const rooms = await getRoomsOfUser(_id);
+  // Retrieve the rooms the user is part of
+  const rooms = await getRoomsOfUser(_id);
 
-    // Join all rooms
-    rooms.forEach((room) => {
-      socket.join(room._id.toString());
-      console.log(`${username} (${socket.id}) joined room: ${room._id}`);
-    });
+  // Join all rooms
+  rooms.forEach((room) => {
+    socket.join(room._id.toString());
+    console.log(`${username} (${socket.id}) joined room: ${room._id}`);
   });
 
   // Receive messages
   socket.on("send-message", async ({ messageData, roomID }) => {
-    console.log(roomID);
-    console.log(`${message}`);
-
     messageData.sender = _id;
     const message = await addTextMessageToRoom(messageData, roomID);
 
