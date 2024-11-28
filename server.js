@@ -13,6 +13,8 @@ import { addTextMessageToRoom } from "./data/message.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
+import errorHandler from "./middlewares/errorHandler.js";
+import profileRoutes from "./routes/profileRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
 
@@ -41,8 +43,10 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/fileUpload", fileUploadRoutes);
+
 
 app.use(errorHandler);
 

@@ -5,6 +5,7 @@ import authenticateWithJWT from "../middlewares/authenticateWithJWT.js";
 
 const router = express.Router();
 
+//User register
 router.post("/register", async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -33,6 +34,7 @@ router.post("/register", async (req, res, next) => {
   res.json({ token });
 });
 
+//User login
 router.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -52,7 +54,7 @@ router.post("/login", async (req, res, next) => {
 
   res.json({ token });
 });
-
+//Change username
 router.patch(
   "/change-username",
   authenticateWithJWT,
@@ -75,6 +77,7 @@ router.patch(
   }
 );
 
+//Change password
 router.patch(
   "/change-password",
   authenticateWithJWT,
@@ -101,6 +104,7 @@ router.patch(
   }
 );
 
+//Delete account
 router.delete(
   "/delete-account",
   authenticateWithJWT,
