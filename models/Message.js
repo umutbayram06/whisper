@@ -13,6 +13,7 @@ const reactionSchema = new mongoose.Schema({
 const messageSchema = new mongoose.Schema({
   type: {
     type: String,
+    enum: ["text", "image", "video", "voice"],
   },
   content: {
     type: String,
@@ -26,9 +27,10 @@ const messageSchema = new mongoose.Schema({
     {
       type: String,
       enum: ["Sent", "Delivered", "Read"],
+      default: "Sent",
     },
   ],
-  reactions: [{ type: reactionSchema }],
+  reactions: { type: [{ type: reactionSchema }], default: [] },
 });
 
 export default mongoose.model("Message", messageSchema);
