@@ -9,11 +9,12 @@ import http from "http";
 import authenticateSocketWithJWT from "./middlewares/authenticateSocketWithJWT.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import { getUserByID, getUserRoomsByID } from "./data/user.js";
+import { addTextMessageToRoom } from "./data/message.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
-import { addTextMessageToRoom } from "./data/message.js";
+import fileUploadRoutes from "./routes/fileUploadRoutes.js";
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -41,6 +42,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/rooms", roomRoutes);
+app.use("/fileUpload", fileUploadRoutes);
 
 app.use(errorHandler);
 
