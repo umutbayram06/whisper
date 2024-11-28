@@ -11,12 +11,6 @@ export async function getUserByID(userID) {
   return user;
 }
 
-export async function getUserRoomsByID(userID) {
-  const userRooms = await Room.find({ participants: userID });
-
-  return userRooms;
-}
-
 export async function getUsersByUsernames(usernames) {
   return await User.find({
     username: { $in: usernames },

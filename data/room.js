@@ -1,10 +1,15 @@
 import Room from "../models/Room.js";
 import { getUsersByUsernames } from "./user.js";
 
-export async function createRoom(participantUsernames, roomType, roomName) {
+export async function createRoom(
+  userIDWhoCreatedRoom,
+  participantUsernames,
+  roomType,
+  roomName
+) {
   const participantUsers = await getUsersByUsernames(participantUsernames);
   const participantUserIDs = participantUsers.map((user) => user._id);
-  participantUserIDs.push(_id);
+  participantUserIDs.push(userIDWhoCreatedRoom);
 
   const newRoom = new Room({
     roomName: roomType == "group" ? roomName : null,
@@ -35,6 +40,12 @@ export async function getMessagesByRoomID(roomID) {
 
   // The messages will be available in the room.messages field
   return room.messages;
+}
+
+export async function getRoomsOfUser(userID) {
+  const rooms = await Room.find({ participants: userID });
+
+  return rooms;
 }
 
 export async function isUserInRoom(userID, roomID) {}

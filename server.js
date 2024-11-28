@@ -8,12 +8,12 @@ import http from "http";
 
 import authenticateSocketWithJWT from "./middlewares/authenticateSocketWithJWT.js";
 import errorHandler from "./middlewares/errorHandler.js";
-import { getUserByID, getUserRoomsByID } from "./data/user.js";
+import { getUserByID } from "./data/user.js";
 import { addTextMessageToRoom } from "./data/message.js";
+import { getRoomsOfUser } from "./data/room.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
-import errorHandler from "./middlewares/errorHandler.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
@@ -47,7 +47,6 @@ app.use("/profile", profileRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/fileUpload", fileUploadRoutes);
 
-
 app.use(errorHandler);
 
 // Socket.IO connection setup
@@ -57,7 +56,7 @@ io.on("connection", (socket) => {
 
   socket.on("initialize", async () => {
     // Retrieve the rooms the user is part of
-    const rooms = await getUserRoomsByID(_id);
+    const rooms = await getRoomsOfUser(_id);
 
     // Join all rooms
     rooms.forEach((room) => {
