@@ -17,6 +17,7 @@ import authRoutes from "./routes/authRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
+import path from "path";
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -41,6 +42,7 @@ io.use(authenticateSocketWithJWT);
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
@@ -61,6 +63,10 @@ io.on("connection", async (socket) => {
   rooms.forEach((room) => {
     socket.join(room._id.toString());
     console.log(`${username} (${socket.id}) joined room: ${room._id}`);
+  });
+
+  socket.on("join-specific-room", async ({ roomID }) => {
+    socket.join(roomID);
   });
 
   // Receive messages
