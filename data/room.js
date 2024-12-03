@@ -50,10 +50,36 @@ export async function getMessagesByRoomID(roomID) {
 export async function getRoomsOfUser(userID) {
   const rooms = await Room.find({ participants: userID }).populate({
     path: "participants",
-    select: "_id username",
+    select: "_id username profileImage about privacySettings",
   });
 
-  return rooms;
+  // Show profile image or not processing
+  const processedRooms = rooms.map((room) => {
+    const participants = room.participants.map((participant) => {
+      // Include `profileImage` only if `showProfileImage` is true
+      const {
+        _id,
+        username,
+        profileImage,
+        about,
+        privacySettings: { showProfileImage, showAboutSection },
+      } = participant;
+
+      const processedParticipant = { _id, username };
+
+      processedParticipant.profileImage = showProfileImage
+        ? profileImage
+        : "defaultUserImage.png";
+
+      processedParticipant.about = showAboutSection ? about : "";
+
+      return processedParticipant;
+    });
+
+    return { ...room.toObject(), participants };
+  });
+
+  return processedRooms;
 }
 
 export async function isUserInRoom(userID, roomID) {}

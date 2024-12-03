@@ -5,8 +5,6 @@ import upload from "../middlewares/fileUpload.js";
 
 const router = express.Router();
 
-//Profile Image
-//Just takes JWT token from header authorization:{JWT Token}
 const getProfileImage = async (req, res) => {
   const { _id } = req.user;
   try {
@@ -36,8 +34,7 @@ const getUserProfileImage = async (req, res) => {
   }
 };
 
-//Takes a json with image: {profileImage converted to base64}
-const updateProfileImage = async (req, res) => {
+const updateProfileImage = async (req, res, next) => {
   const { _id } = req.user;
   if (req.file) {
     try {
@@ -52,18 +49,16 @@ const updateProfileImage = async (req, res) => {
   }
 };
 
-//About
-//Just takes JWT token from header authorization:{JWT Token}
-const getAbout = async (req, res) => {
+const getAbout = async (req, res, next) => {
   const { _id } = req.user;
   try {
     const response = await User.findOne(_id).select("about");
-    res.status(200).json(response);
+    res.json(response);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    next(error);
   }
 };
+
 //When showAboutSection:false returns .
 //Unauthenticated method for getting about section using id parameter
 const getUserAbout = async (req, res) => {
@@ -78,20 +73,19 @@ const getUserAbout = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
 //Takes json about:{about}
-const updateAbout = async (req, res) => {
+const updateAbout = async (req, res, next) => {
   const { about } = req.body;
   const { _id } = req.user;
   try {
-    const response = await User.findByIdAndUpdate(
-      _id,
-      { about: about },
-      { new: true }
-    );
-    res.status(200).json(response);
+    await User.findByIdAndUpdate(_id, { about: about });
+    res.json({
+      success: true,
+      message: "About Section Updated Successfully !",
+    });
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    next(error);
   }
 };
 
@@ -193,40 +187,44 @@ const unblockUser = async (req, res) => {
 
 //PrivacySettings
 
-const getPrivacySettings = async (req, res) => {
+const getPrivacySettings = async (req, res, next) => {
   const { _id } = req.user;
 
   try {
     const response = await User.findById(_id).select("privacySettings");
-    res.status(200).json(response);
+
+    res.json(response);
   } catch (error) {
-    console.error(error);
-    res.status(500).json(error);
+    next(error);
   }
 };
+
 //Takes boolean values in json body showProfileImage, showAboutSection
 //Also can change settings individually
-const updatePrivacySettings = async (req, res) => {
+const updatePrivacySettings = async (req, res, next) => {
   const { showProfileImage, showAboutSection } = req.body;
   const { _id } = req.user;
 
+  if (showProfileImage == undefined || showAboutSection == undefined) {
+    return next(new Error("Bad request !"));
+  }
+
   try {
     const user = await User.findById(_id);
-    if (!user) return res.status(404).json("User does not exist");
-
-    if (showProfileImage !== undefined) {
-      user.privacySettings.showProfileImage = showProfileImage;
+    if (!user) {
+      return next(new Error("User does not exist"));
     }
 
-    if (showAboutSection !== undefined) {
-      user.privacySettings.showAboutSection = showAboutSection;
-    }
+    user.privacySettings.showProfileImage = showProfileImage;
+    user.privacySettings.showAboutSection = showAboutSection;
 
-    const response = await user.save();
-    res.status(200).json(response);
+    await user.save();
+    res.json({
+      success: true,
+      message: "Privacy Settings Updated Successfully !",
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json(error);
+    next(error);
   }
 };
 
@@ -252,7 +250,7 @@ router.get("/block", authenticateWithJWT, getBlockedUsers);
 router.patch("/block/:id", authenticateWithJWT, blockUser);
 router.patch("/unblock/:id", authenticateWithJWT, unblockUser);
 
-router.get("/settings", authenticateWithJWT, getPrivacySettings);
-router.patch("/settings", authenticateWithJWT, updatePrivacySettings);
+router.get("/privacySettings", authenticateWithJWT, getPrivacySettings);
+router.put("/privacySettings", authenticateWithJWT, updatePrivacySettings);
 
 export default router;
