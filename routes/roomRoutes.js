@@ -6,7 +6,22 @@ import {
   getRoomsOfUser,
 } from "../data/room.js";
 
+import upload from "../middlewares/fileUpload.js";
+import Room from "../models/Room.js";
+
 const router = express.Router();
+
+router.get("/", authenticateWithJWT, async (req, res, next) => {
+  const { _id } = req.user;
+
+  try {
+    const userRooms = await getRoomsOfUser(_id);
+
+    res.json(userRooms);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post("/", authenticateWithJWT, async (req, res, next) => {
   const { participantUsernames, roomType, roomName } = req.body;
@@ -46,16 +61,24 @@ router.get("/:roomID/messages", authenticateWithJWT, async (req, res, next) => {
   }
 });
 
-router.get("/", authenticateWithJWT, async (req, res, next) => {
-  const { _id } = req.user;
+router.patch(
+  "/:roomID/roomImage",
+  authenticateWithJWT,
+  upload.single("file"),
+  async (req, res, next) => {
+    const { roomID } = req.params;
 
-  try {
-    const userRooms = await getRoomsOfUser(_id);
-
-    res.json(userRooms);
-  } catch (error) {
-    next(error);
+    try {
+      const updatedRoom = await Room.findByIdAndUpdate(
+        roomID,
+        { roomImage: req.file.filename },
+        { new: true }
+      );
+      res.json({ filename: updatedRoom.roomImage });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 export default router;

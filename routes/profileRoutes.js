@@ -5,6 +5,16 @@ import upload from "../middlewares/fileUpload.js";
 
 const router = express.Router();
 
+const getUsername = async (req, res, next) => {
+  const { _id } = req.user;
+  try {
+    const { username } = await User.findById(_id);
+    res.json({ username });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProfileImage = async (req, res) => {
   const { _id } = req.user;
   try {
@@ -229,6 +239,7 @@ const updatePrivacySettings = async (req, res, next) => {
 };
 
 //Routes
+router.get("/username", authenticateWithJWT, getUsername);
 router.get("/image", authenticateWithJWT, getProfileImage);
 router.get("/image/other/:id", getUserProfileImage);
 router.post(
