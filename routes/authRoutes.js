@@ -67,13 +67,22 @@ router.patch(
 
     const { _id } = req.user;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      _id,
-      { username: newUsername },
-      { new: true }
-    );
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        _id,
+        { username: newUsername },
+        { new: true }
+      );
 
-    res.json({ updatedUser });
+      res.json({ updatedUser });
+    } catch (error) {
+      if (error.codeName == "DuplicateKey") {
+        error.message =
+          "Somebody have already taken this username. Try a different one !";
+        return next(error);
+      }
+      next(error);
+    }
   }
 );
 
