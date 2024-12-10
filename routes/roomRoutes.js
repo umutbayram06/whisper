@@ -8,6 +8,7 @@ import {
 
 import upload from "../middlewares/fileUpload.js";
 import Room from "../models/Room.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -34,6 +35,22 @@ router.post("/", authenticateWithJWT, async (req, res, next) => {
 
   if (roomType == "group" && !roomName) {
     return next(new Error("Bad parameters"));
+  }
+
+  const existingUsers = await User.find(
+    { username: { $in: participantUsernames } },
+    "username"
+  );
+  const existingUsernames = existingUsers.map((user) => user.username);
+  const missingUsernames = participantUsernames.filter(
+    (username) => !existingUsernames.includes(username)
+  );
+  if (missingUsernames.length > 0) {
+    return next(
+      new Error(
+        `The following usernames do not exist: ${missingUsernames.join(", ")}`
+      )
+    );
   }
 
   try {

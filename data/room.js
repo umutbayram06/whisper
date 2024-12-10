@@ -21,9 +21,32 @@ export async function createRoom(
 
   await newRoom.populate({
     path: "participants",
-    select: "_id username",
+    select: "_id username privacySettings profileImage about",
   });
-  return newRoom;
+
+  const processedParticipants = newRoom.participants.map((participant) => {
+    // Include `profileImage` only if `showProfileImage` is true
+    const {
+      _id,
+      username,
+      profileImage,
+      about,
+      privacySettings: { showProfileImage, showAboutSection },
+    } = participant;
+
+    const processedParticipant = { _id, username };
+
+    processedParticipant.profileImage = showProfileImage
+      ? profileImage
+      : "defaultUserImage.png";
+
+    processedParticipant.about = showAboutSection ? about : "";
+
+    return processedParticipant;
+  });
+
+  console.log({ ...newRoom.toObject(), participants: processedParticipants });
+  return { ...newRoom.toObject(), participants: processedParticipants };
 }
 
 export async function getMessagesByRoomID(roomID) {
