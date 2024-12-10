@@ -56,6 +56,8 @@ io.on("connection", async (socket) => {
   const { _id, username } = socket.user;
   console.log("A user connected " + socket.user.username);
 
+  socket.join(username);
+
   // Retrieve the rooms the user is part of
   const rooms = await getRoomsOfUser(_id);
 
@@ -69,12 +71,18 @@ io.on("connection", async (socket) => {
     socket.join(roomID);
   });
 
+  socket.on("add-participants-to-room", async ({ usernames, roomID }) => {
+    usernames.forEach((username) => {
+      io.to(username).emit("added-to-room", { roomID });
+    });
+  });
+
   // Receive messages
   socket.on("send-message", async ({ messageData, roomID }) => {
     messageData.sender = _id;
     const message = await addTextMessageToRoom(messageData, roomID);
 
-    io.to(roomID).emit("receive-message", { message });
+    io.to(roomID).emit("receive-message", { message, roomID });
   });
 
   socket.on("send-typing", async ({ roomID }) => {
