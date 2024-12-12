@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const reactionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   emoji: {
     type: String,
@@ -13,7 +13,7 @@ const reactionSchema = new mongoose.Schema({
 const messageSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ["text", "image", "video", "voice"],
+    enum: ['text', 'image', 'video', 'voice'],
   },
   content: {
     type: String,
@@ -21,16 +21,17 @@ const messageSchema = new mongoose.Schema({
   },
   sender: {
     type: mongoose.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   status: [
     {
       type: String,
-      enum: ["Sent", "Delivered", "Read"],
-      default: "Sent",
+      enum: ['Sent', 'Delivered', 'Read'],
+      default: 'Sent',
     },
   ],
   reactions: { type: [{ type: reactionSchema }], default: [] },
+  time: { type: Number, required: true },
 });
 
-export default mongoose.model("Message", messageSchema);
+export default mongoose.model('Message', messageSchema);
