@@ -79,7 +79,6 @@ router.post("/", authenticateWithJWT, async (req, res, next) => {
         roomType: "private",
         participants: { $all: participantUserIDs},
         })
-      console.log(existingPrivateRoom)
       if(existingPrivateRoom != null) throw new Error("User already added")
     }
 
