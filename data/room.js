@@ -45,7 +45,6 @@ export async function createRoom(
     return processedParticipant;
   });
 
-  console.log({ ...newRoom.toObject(), participants: processedParticipants });
   return { ...newRoom.toObject(), participants: processedParticipants };
 }
 

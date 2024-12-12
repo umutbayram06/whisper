@@ -5,6 +5,7 @@ import {
   getMessagesByRoomID,
   getRoomsOfUser,
 } from "../data/room.js";
+import { getUsersByUsernames } from "../data/user.js";
 
 import upload from "../middlewares/fileUpload.js";
 import Room from "../models/Room.js";
@@ -28,13 +29,27 @@ router.post("/", authenticateWithJWT, async (req, res, next) => {
   const { participantUsernames, roomType, roomName } = req.body;
 
   const { _id } = req.user;
+  try{
+    // Find the logged-in user in the database by their ID
+    const user = await User.findById(_id);
 
-  if (participantUsernames.length == 0 || !roomType) {
-    return next(new Error("Bad parameters !"));
-  }
+    // Check if the logged-in user is in the list of participants
+    if (participantUsernames.includes(user.username)) {
+      return new Error("You cannot add yourself to the room");
+    }
 
-  if (roomType == "group" && !roomName) {
-    return next(new Error("Bad parameters"));
+    if (participantUsernames.length == 0 || !roomType) {
+      return next(new Error("Bad parameters !"));
+    }
+  
+    if (roomType == "group" && !roomName) {
+      return next(new Error("Bad parameters"));
+    }
+
+    
+
+  }catch(error){
+    next(error);
   }
 
   const existingUsers = await User.find(
@@ -54,6 +69,19 @@ router.post("/", authenticateWithJWT, async (req, res, next) => {
   }
 
   try {
+
+    //If a private room is being created
+    if (roomType == "private") {
+      const participantUsers = await getUsersByUsernames(participantUsernames)
+      const participantUserIDs = participantUsers.map((user) => user._id);
+      //Check if a private room with the participants already exists
+      const existingPrivateRoom =  await Room.findOne({
+        roomType: "private",
+        participants: { $all: participantUserIDs},
+        })
+      if(existingPrivateRoom != null) throw new Error("User already added")
+    }
+
     const newRoom = await createRoom(
       _id,
       participantUsernames,

@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
       validator: function (value) {
         // Custom validation using your constraints
         const lengthCheck = value.length >= 8; // Minimum 8 characters
-        const specialCharCheck = /[!@#$%^&*(),.?":{}|<>]/.test(value); // At least one special character
+        const specialCharCheck = /[!@#$%^&*(),.?"_:{}|<>]/.test(value); // At least one special character
         const numberCheck = /\d/.test(value); // At least one number
         const upperLowerCheck = /(?=.*[a-z])(?=.*[A-Z])/.test(value); // At least one lowercase and one uppercase letter
 
